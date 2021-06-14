@@ -76,7 +76,8 @@ def toast_and_open_folder(des_folder, file_type):
         'Music': 'icons/music.ico',
         'Downloads': 'icons/down.ico'
     }
-    toast.show_toast('File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=file_types[file_type],  threaded=False, callback_on_click=open_folder)
+    icon_path = 'C:/Users/gusta/documents/coding_projects/python/downloads_organizer/' + file_types[file_type]
+    toast.show_toast('File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=icon_path,  threaded=False, callback_on_click=open_folder)
     
 def move_file(file):
     # Move the downloaded file to its proper destination folder and trigger toast
@@ -130,7 +131,7 @@ def move_file(file):
 #  to terminate the loop.
 
 try:
-
+  toast.show_toast('Download Script', 'Download organizer script has started', duration=3, icon_path='C:/Users/gusta/documents/coding_projects/python/downloads_organizer/icons/folder.ico', threaded=False)
   old_path_contents = dict([(f, None) for f in os.listdir(path_to_watch)])
   while True:
     result = win32event.WaitForSingleObject(change_handle, 500)
@@ -156,7 +157,7 @@ try:
       win32file.FindNextChangeNotification(change_handle)
 
 except:
-    toast.show_toast('Download Script Error', 'Please check the script', duration=3, icon_path='icons/err.ico',  threaded=False)
+    toast.show_toast('Download Script Error', 'Please check the script', duration=3, icon_path='C:/Users/gusta/documents/coding_projects/python/downloads_organizer/icons/err.ico',  threaded=False)
     
 finally:
   win32file.FindCloseChangeNotification(change_handle)
