@@ -1,3 +1,4 @@
+from logging import error
 import os
 from time import sleep
 import datetime
@@ -41,64 +42,85 @@ def check_year_and_month_folder(des_folder):
             os.mkdir(des_folder)
     
     return des_folder
+
+def check_for_dupes(des_folder, file):
+    # Check for duplicate files in the destination folder and rename file if needed
+    file_path = des_folder + '/' + file
+    file_exists = os.path.isfile(file_path)
+    file_name = file[:-4] 
+    file_type = file[-4:]
+    
+    while file_exists:
+        file_num = 1
+        last_2 = file_name[-2:] 
         
+        if last_2[0] == '_' and last_2[-1].isdigit():
+            file_name = file_name[:-1] + str(int(last_2[-1]) + 1) 
+
+        else:
+            file_name = file_name + '_' + str(file_num) 
+            file_num += 1
+           
+        file_path = des_folder + '/' + file_name + file_type
+        file_exists = os.path.isfile(file_path)
+    
+    return file_path   
 
 def toast_and_open_folder(des_folder, file_type):
     # Create windows toast for downloaded file
     open_folder = lambda: os.startfile(des_folder)
     file_types = {
-        'Picture': 'icons/pic.ico',
-        'Video': 'icons/vid.ico',
-        'Document': 'icons/doc.ico',
+        'Pictures': 'icons/pic.ico',
+        'Videos': 'icons/vid.ico',
+        'Documents': 'icons/doc.ico',
         'Music': 'icons/music.ico',
-        'Download': 'icons/down.ico'
+        'Downloads': 'icons/down.ico'
     }
-    toast.show_toast(f'{file_type[:-1]} Type File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=file_types[file_type],  threaded=False, callback_on_click=open_folder)
+    toast.show_toast('File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=file_types[file_type],  threaded=False, callback_on_click=open_folder)
     
 def move_file(file):
     # Move the downloaded file to its proper destination folder and trigger toast
-    doc_types = ['zip', 'txt', 'docx', 'pptx', 'xlsx', 'pdf']
+    doc_types = ['txt', 'docx', 'pptx', 'xlsx', 'pdf']
     pic_types = ['png', 'jpg', 'jpeg', 'ico']
     vid_types = ['mov', 'mpg', 'mpeg', 'mp4', 'mpge4', 'avi']
     music_types = ['mp3', 'wav']
     des_folder = 'C:/Users/gusta/'
     file_to_move = path_to_watch + '/' + file
     file_type = file.split('.')[-1]
-    print(file_type)
 
     if file_type in doc_types:
         des_folder += 'Documents'
         des_folder = check_year_and_month_folder(des_folder)
-        file_path = des_folder + '/' + file
+        file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
-        toast_and_open_folder(des_folder, 'Document')
+        toast_and_open_folder(des_folder, 'Documents')
         
         
     elif file_type in pic_types:
         des_folder += 'Pictures'
         des_folder = check_year_and_month_folder(des_folder)
-        file_path = des_folder + '/' + file
+        file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
-        toast_and_open_folder(des_folder, 'Picture')
+        toast_and_open_folder(des_folder, 'Pictures')
         
     elif file_type in vid_types:
         des_folder += 'Videos'
         des_folder = check_year_and_month_folder(des_folder)
-        file_path = des_folder + '/' + file
+        file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
-        toast_and_open_folder(des_folder, 'Video')
+        toast_and_open_folder(des_folder, 'Videos')
         
     elif file_type in music_types:
         des_folder += 'Music'
         des_folder = check_year_and_month_folder(des_folder)
-        file_path = des_folder + '/' + file
+        file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Music')
     
     else: 
         des_folder += 'Downloads'    
         des_folder = check_year_and_month_folder(des_folder)
-        file_path = des_folder + '/' + file
+        file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Downloads')
     
@@ -106,12 +128,11 @@ def move_file(file):
 # Loop forever, listing any file changes. The WaitFor... will
 #  time out every half a second allowing for keyboard interrupts
 #  to terminate the loop.
-#
 
 try:
 
   old_path_contents = dict([(f, None) for f in os.listdir(path_to_watch)])
-  while 1:
+  while True:
     result = win32event.WaitForSingleObject(change_handle, 500)
     
     # If the WaitFor... returned because of a notification (as
@@ -123,7 +144,7 @@ try:
       sleep(1) # to prevent "couldn't download" error in browser event though file was downloaded
       new_path_contents = dict ([(f, None) for f in os.listdir (path_to_watch)])
       added = [f for f in new_path_contents if not f in old_path_contents]
-      print(added)
+      
       if added : 
         for file in added:
             if 'crdownload' in file:
@@ -131,9 +152,11 @@ try:
             else:
               move_file(file)
           
-
       old_path_contents = new_path_contents
       win32file.FindNextChangeNotification(change_handle)
 
+except:
+    toast.show_toast('Download Script Error', 'Please check the script', duration=3, icon_path='icons/err.ico',  threaded=False)
+    
 finally:
   win32file.FindCloseChangeNotification(change_handle)
