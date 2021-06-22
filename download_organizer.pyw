@@ -10,8 +10,11 @@ from win10toast_click import ToastNotifier
 
 
 toast = ToastNotifier()
-path_to_watch = os.path.abspath("C:/Users/gusta/Downloads")
-
+dir_path = os.path.dirname(os.path.realpath(__file__))
+user_path = os.environ['USERPROFILE'] 
+downloads_path = user_path + '/Downloads'
+path_to_watch = os.path.abspath(downloads_path)
+year = datetime.datetime.now().strftime('%Y')
 
 # FindFirstChangeNotification sets up a handle for watching
 #  file changes. The first parameter is the path to be
@@ -31,16 +34,17 @@ def check_year_and_month_folder(des_folder):
     # Check the directory for current month and year folders. If they do not exist, create them
     curr_year, curr_month = datetime.datetime.now().strftime('%Y-%b').split('-')
     des_folder += '/' + curr_year
-    if not os.path.exists(des_folder):
-        os.mkdir(des_folder)
-        des_folder += '/' + curr_month
-        os.mkdir(des_folder)
-       
-    else:
+    
+    if os.path.exists(des_folder):
         des_folder += '/' + curr_month
         if not os.path.exists(des_folder):
             os.mkdir(des_folder)
-    
+       
+    else:
+        os.mkdir(des_folder)
+        des_folder += '/' + curr_month
+        os.mkdir(des_folder)
+        
     return des_folder
 
 def check_for_dupes(des_folder, file):
@@ -63,21 +67,21 @@ def check_for_dupes(des_folder, file):
            
         file_path = des_folder + '/' + file_name + file_type
         file_exists = os.path.isfile(file_path)
-    
+        
     return file_path   
 
 def toast_and_open_folder(des_folder, file_type):
     # Create windows toast for downloaded file
     open_folder = lambda: os.startfile(des_folder)
     file_types = {
-        'Pictures': 'icons/pic.ico',
-        'Videos': 'icons/vid.ico',
-        'Documents': 'icons/doc.ico',
-        'Music': 'icons/music.ico',
-        'Downloads': 'icons/down.ico'
+        'Pictures': '/icons/pic.ico',
+        'Videos': '/icons/vid.ico',
+        'Documents': '/icons/doc.ico',
+        'Music': '/icons/music.ico',
+        'Downloads': '/icons/down.ico'
     }
-    icon_path = 'C:/Users/gusta/documents/coding_projects/python/downloads_organizer/' + file_types[file_type]
-    toast.show_toast('File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=icon_path,  threaded=False, callback_on_click=open_folder)
+    icon = dir_path + file_types[file_type]
+    toast.show_toast('File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=icon,  threaded=False, callback_on_click=open_folder)
     
 def move_file(file):
     # Move the downloaded file to its proper destination folder and trigger toast
@@ -85,12 +89,12 @@ def move_file(file):
     pic_types = ['png', 'jpg', 'jpeg', 'ico']
     vid_types = ['mov', 'mpg', 'mpeg', 'mp4', 'mpge4', 'avi']
     music_types = ['mp3', 'wav']
-    des_folder = 'C:/Users/gusta/'
+    des_folder = user_path
     file_to_move = path_to_watch + '/' + file
     file_type = file.split('.')[-1]
 
     if file_type in doc_types:
-        des_folder += 'Documents'
+        des_folder += '/Documents'
         des_folder = check_year_and_month_folder(des_folder)
         file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
@@ -98,40 +102,50 @@ def move_file(file):
         
         
     elif file_type in pic_types:
-        des_folder += 'Pictures'
+        des_folder += '/Pictures'
         des_folder = check_year_and_month_folder(des_folder)
         file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Pictures')
         
     elif file_type in vid_types:
-        des_folder += 'Videos'
+        des_folder += '/Videos'
         des_folder = check_year_and_month_folder(des_folder)
         file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Videos')
         
     elif file_type in music_types:
-        des_folder += 'Music'
+        des_folder += '/Music'
         des_folder = check_year_and_month_folder(des_folder)
         file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Music')
     
     else: 
-        des_folder += 'Downloads'    
+        des_folder += '/Downloads'    
         des_folder = check_year_and_month_folder(des_folder)
         file_path = check_for_dupes(des_folder, file)
         os.rename(file_to_move, file_path)
         toast_and_open_folder(des_folder, 'Downloads')
     
+def script_start_fail(start):
+    # Create toast to notify that the script has started or failed
+     if start:
+         msg = 'Download organizer script has started'
+         icon = dir_path + '/icons/start.ico'
+     else:
+         msg = 'Download organizer script has failed'
+         icon = dir_path + '/icons/err.ico'
+     toast.show_toast('Download Organizer', msg, duration=3, icon_path=icon, threaded=False)
 
 # Loop forever, listing any file changes. The WaitFor... will
 #  time out every half a second allowing for keyboard interrupts
 #  to terminate the loop.
 
+
 try:
-  toast.show_toast('Download Script', 'Download organizer script has started', duration=3, icon_path='C:/Users/gusta/documents/coding_projects/python/downloads_organizer/icons/folder.ico', threaded=False)
+  script_start_fail(True)
   old_path_contents = dict([(f, None) for f in os.listdir(path_to_watch)])
   while True:
     result = win32event.WaitForSingleObject(change_handle, 500)
@@ -142,9 +156,9 @@ try:
     #
     if result == win32con.WAIT_OBJECT_0:
         
-      sleep(1) # to prevent "couldn't download" error in browser event though file was downloaded
+      sleep(2) # to prevent "couldn't download" error in browser event though file was downloaded
       new_path_contents = dict ([(f, None) for f in os.listdir (path_to_watch)])
-      added = [f for f in new_path_contents if not f in old_path_contents]
+      added = [f for f in new_path_contents if not f in old_path_contents and f != year]
       
       if added : 
         for file in added:
@@ -157,7 +171,7 @@ try:
       win32file.FindNextChangeNotification(change_handle)
 
 except:
-    toast.show_toast('Download Script Error', 'Please check the script', duration=3, icon_path='C:/Users/gusta/documents/coding_projects/python/downloads_organizer/icons/err.ico',  threaded=False)
+    script_start_fail(False)
     
 finally:
   win32file.FindCloseChangeNotification(change_handle)

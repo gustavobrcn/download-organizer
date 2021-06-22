@@ -5,63 +5,80 @@ from win10toast_click import ToastNotifier
 
 toast = ToastNotifier()
 
-path = "C:/Users/gusta/Downloads"
+# path = "C:/Users/gusta/Downloads"
 
-def check_year_and_month_folder(des_folder):
-    curr_year, curr_month = datetime.datetime.now().strftime('%Y-%b').split('-')
-    # dir = os.listdir(des_folder)
-    des_folder += '/' + curr_year
-    if not os.path.exists(des_folder):
-        os.mkdir(des_folder)
-        des_folder += '/' + curr_month
-        os.mkdir(des_folder)
+# def check_year_and_month_folder(des_folder):
+#     curr_year, curr_month = datetime.datetime.now().strftime('%Y-%b').split('-')
+#     # dir = os.listdir(des_folder)
+#     des_folder += '/' + curr_year
+#     if not os.path.exists(des_folder):
+#         os.mkdir(des_folder)
+#         des_folder += '/' + curr_month
+#         os.mkdir(des_folder)
        
-    else:
-        # dir = os.listdir(des_folder)
-        des_folder += '/' + curr_month
-        if not os.path.exists(des_folder):
-            os.mkdir(des_folder)
-    return des_folder
+#     else:
+#         # dir = os.listdir(des_folder)
+#         des_folder += '/' + curr_month
+#         if not os.path.exists(des_folder):
+#             os.mkdir(des_folder)
+#     return des_folder
         
-# check_year_and_month_folder(path)
+# # check_year_and_month_folder(path)
 
 def toast_and_open_folder(des_folder, file_type):
     callback = lambda: os.startfile(des_folder)
     file_types = {
-        'Picture': 'icons/pic.ico',
+        'Picture': '/icons/pic.ico',
         'Video': 'icons/vid.ico',
         'Document': 'icons/doc.ico',
         'Music': 'icons/music.ico'
     }
-    toast.show_toast(f'{file_type} Type File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=file_types[file_type],  threaded=False, callback_on_click=callback)
+    icon_path = des_folder + file_types[file_type]
+    print(icon_path)
+    toast.show_toast(f'{file_type} Type File Downloaded', f'Open the {file_type} Library to view the downloaded file.', duration=3, icon_path=icon_path,  threaded=False, callback_on_click=callback)
 
-# toast_and_open_folder(path, 'Picture')
-# Keep changing value of des_folder
-# curr_year, curr_month = datetime.datetime.now().strftime('%Y-%b').split('-')
+# # Keep changing value of des_folder
+# # curr_year, curr_month = datetime.datetime.now().strftime('%Y-%b').split('-')
 
-# os.mkdir(path+'/'+ curr_year)
+# # os.mkdir(path+'/'+ curr_year)
 
-def check_for_dupes(des_folder, file):
-    file_path = des_folder + '/' + file
-    file_exists = os.path.isfile(file_path)
-    file_name = file[:-4] 
-    file_type = file[-4:]
+# def check_for_dupes(des_folder, file):
+#     file_path = des_folder + '/' + file
+#     file_exists = os.path.isfile(file_path)
+#     file_name = file[:-4] 
+#     file_type = file[-4:]
     
-    while file_exists:
-        file_num = 1
-        last_2 = file_name[-2:] 
+#     while file_exists:
+#         file_num = 1
+#         last_2 = file_name[-2:] 
         
-        if last_2[0] == '_' and last_2[-1].isdigit():
-            file_name = file_name[:-1] + str(int(last_2[-1]) + 1) 
+#         if last_2[0] == '_' and last_2[-1].isdigit():
+#             file_name = file_name[:-1] + str(int(last_2[-1]) + 1) 
 
-        else:
-            file_name = file_name + '_' + str(file_num) 
-            file_num += 1
+#         else:
+#             file_name = file_name + '_' + str(file_num) 
+#             file_num += 1
            
-        file_path = des_folder + '/' + file_name + file_type
-        file_exists = os.path.isfile(file_path)
+#         file_path = des_folder + '/' + file_name + file_type
+#         file_exists = os.path.isfile(file_path)
     
-    return file_path
+#     return file_path
         
 
-check_for_dupes(path + '/New Folder', 'New Text Document.txt')
+# check_for_dupes(path + '/New Folder', 'New Text Document.txt')
+
+# print(os.environ['USERPROFILE'])
+# print(os.getcwd())
+user_path = os.environ['USERPROFILE']
+des_folder = user_path + '/Documents'
+
+# downloads_path = user_path + '/Downloads'
+# dir_path = os.path.dirname(os.path.realpath(__file__))
+# # os.startfile(dir_path)
+# print(dir_path)
+# toast_and_open_folder(dir_path, 'Picture')
+des_folder += '/2021'
+des_folder += '/Jun'
+des_folder = os.path.abspath(des_folder)
+print(os.path.exists(des_folder))
+os.mkdir(des_folder)
