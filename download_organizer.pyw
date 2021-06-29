@@ -147,6 +147,7 @@ def script_start_fail(start):
 #  time out every half a second allowing for keyboard interrupts
 #  to terminate the loop.
 
+ignores = ['crdownload','.tmp']
 
 try:
   script_start_fail(True)
@@ -164,9 +165,13 @@ try:
       new_path_contents = dict ([(f, None) for f in os.listdir (path_to_watch)])
       added = [f for f in new_path_contents if not f in old_path_contents and f != year]
       
-      if added : 
+      if added: 
         for file in added:
-            if 'crdownload' in file:
+            should_continue = False
+            for name in ignores:
+                if name in file:
+                    should_continue = True
+            if should_continue:
                 continue
             else:
               move_file(file)
