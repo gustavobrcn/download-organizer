@@ -1,5 +1,4 @@
 @echo off
 
-python C:\Users\gusta\documents\coding_projects\python\downloads_organizer\download_organizer.pyw
+python C:\Users\gusta\documents\coding-projects\python\download-organizer\download_organizer.pyw
 
-@pause
