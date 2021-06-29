@@ -1,1 +1,2 @@
-win10toast_click
+win10toast-click
+python-dotenv
