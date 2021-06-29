@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from logging import error
 import os
 from time import sleep
@@ -8,10 +9,13 @@ import win32con
 
 from win10toast_click import ToastNotifier
 
+load_dotenv()
+
 
 toast = ToastNotifier()
 dir_path = os.path.dirname(os.path.realpath(__file__))
-user_path = os.environ['USERPROFILE'] 
+custom_user_path = os.environ['HOME_PATH']
+user_path = os.environ['USERPROFILE'] if custom_user_path == '' else custom_user_path
 downloads_path = user_path + '/Downloads'
 path_to_watch = os.path.abspath(downloads_path)
 year = datetime.datetime.now().strftime('%Y')
@@ -143,6 +147,7 @@ def script_start_fail(start):
 #  time out every half a second allowing for keyboard interrupts
 #  to terminate the loop.
 
+ignores = ['crdownload','.tmp']
 
 try:
   script_start_fail(True)
@@ -160,9 +165,13 @@ try:
       new_path_contents = dict ([(f, None) for f in os.listdir (path_to_watch)])
       added = [f for f in new_path_contents if not f in old_path_contents and f != year]
       
-      if added : 
+      if added: 
         for file in added:
-            if 'crdownload' in file:
+            should_continue = False
+            for name in ignores:
+                if name in file:
+                    should_continue = True
+            if should_continue:
                 continue
             else:
               move_file(file)
