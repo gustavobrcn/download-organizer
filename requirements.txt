@@ -1,2 +1,2 @@
 win10toast-click
-python-dotenv
+winshell
