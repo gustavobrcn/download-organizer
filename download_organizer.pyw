@@ -106,12 +106,12 @@ def toast_and_open_folder(des_folder, file_type):
     
 def move_file(file):
     # Move the downloaded file to its proper destination folder and trigger toast
-    doc_types = ['txt', 'docx', 'pptx', 'xlsx', 'pdf']
-    pic_types = ['png', 'jpg', 'jpeg', 'ico']
-    vid_types = ['mov', 'mpg', 'mpeg', 'mp4', 'mpge4', 'avi']
+    doc_types = ['txt', 'rtf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf']
+    pic_types = ['png', 'jpg', 'jpeg', 'ico', 'webp', 'gif', 'tiff']
+    vid_types = ['mov', 'mpg', 'mpeg', 'mp4', 'mpge4', 'avi', 'm4v', 'flv']
     music_types = ['mp3', 'wav']
     file_to_move = os.path.join(path_to_watch, file)
-    file_ext = file.split('.')[-1]
+    file_ext = file.split('.')[-1].lower()
 
     destination = ''
 
