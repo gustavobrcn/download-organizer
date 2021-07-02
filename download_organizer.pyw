@@ -6,7 +6,7 @@ import win32file
 import win32event
 import win32con
 import winshell
-from winreg import *
+from winreg import OpenKey, HKEY_CURRENT_USER, QueryValueEx
 
 from win10toast_click import ToastNotifier
 
