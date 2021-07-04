@@ -1,0 +1,1 @@
+pyinstaller -n DownloadOrganizer -F --add-data "icons;icons" download_organizer.pyw 
